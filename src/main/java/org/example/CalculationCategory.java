@@ -1,30 +1,22 @@
 package org.example;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+
 public class CalculationCategory {
 
 
-    public static String[] setMaxCategory(String category, int sum) {
+    private Category maxCategory;
 
-        String sumMaxCategory = null;
-        String nameMaxCategory = null;
-        String[] maxCategory = new String[0];
-
-        int[] sumCategory = {0, 0, 0, 0, 0};
-        String[] nameCategory = {"еда", "одежда", "быт", "финансы", "другое"};
-
-        for (int i = 0; i < sumCategory.length; i++) {
-            if (category.equals(nameCategory[i])) {
-                sumCategory[i] += sum;
-                sumMaxCategory = Integer.toString(sumCategory[i]);
-                nameMaxCategory = nameCategory[i];
-
-
-                maxCategory = new String[]{nameMaxCategory, sumMaxCategory};
-
-            }
-
-        }
-        return maxCategory;
+    public void setMaxCategory(List<Category> categoryList) {
+        Optional<Category> category = categoryList
+                .stream()
+                .max(Comparator.comparingInt(Category::getSum));
+        category.ifPresent(value -> maxCategory = value);
     }
 
+    public Category getMaxCategory() {
+        return maxCategory;
+    }
 }

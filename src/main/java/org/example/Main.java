@@ -1,5 +1,8 @@
 package org.example;
 
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -7,12 +10,41 @@ import org.json.simple.parser.ParseException;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.*;
 
 
 public class Main {
     private static JSONObject jsonObject;
 
-    public static void main(String[] args) throws ParseException {
+    public static void main(String[] args) {
+
+
+        List<Product> products = new ArrayList<>();
+
+
+        try (BufferedReader reader = new BufferedReader(new FileReader("categories.tsv"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+
+                String[] words = line.split("\t");
+
+                products.add(new Product(words[0], words[1]));
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("Не могу найти файл");
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("Файл пустой");
+            e.printStackTrace();
+        }
+
+        Map<String, Category> categoriesProduct = new HashMap<>();
+        for (Product product : products) {
+            String category = product.getCategory();
+            if (!categoriesProduct.containsKey(category)) {
+                categoriesProduct.put(category, new Category(category, 0));
+            }
+        }
 
 
         try (
@@ -40,12 +72,20 @@ public class Main {
                     String sumStr = (String) jsonObject.get("sum");
                     Integer sum = Integer.parseInt(sumStr);
 
-                    String[] maxCategory = CalculationCategory.setMaxCategory(category, sum);
+                    categoriesProduct.get(category).addSum(sum);
 
-                    out.println("{ " +
-                            " maxCategory: " + " { " +
-                            "category: " + maxCategory[0] + " , " +
-                            "sum: " + maxCategory[1] + " } " + " } ");
+                    CalculationCategory calculationCategory = new CalculationCategory();
+                    List<Category> categoryRequest = new ArrayList<>();
+
+                    categoryRequest.add(new Category(category, sum));
+
+                    calculationCategory.setMaxCategory(categoryRequest);
+
+                    GsonBuilder builder = new GsonBuilder();
+                    Gson gson = builder.create();
+
+
+                    out.println(gson.toJson(calculationCategory));
 
 
                 }
@@ -56,4 +96,6 @@ public class Main {
             e.printStackTrace();
         }
     }
+
+
 }
