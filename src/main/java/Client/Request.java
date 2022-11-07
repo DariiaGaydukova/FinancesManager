@@ -1,4 +1,4 @@
-package org.example;
+package Client;
 
 public class Request {
     public void setTitle(String title) {

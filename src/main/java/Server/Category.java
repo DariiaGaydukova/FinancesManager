@@ -1,4 +1,4 @@
-package org.example;
+package Server;
 
 public class Category {
 

@@ -1,4 +1,4 @@
-package org.example;
+package Server;
 
 public class Product {
     private String title;
