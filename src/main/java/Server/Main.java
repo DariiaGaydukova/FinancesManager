@@ -16,10 +16,13 @@ import java.util.*;
 public class Main {
     private static JSONObject jsonObject;
 
+
     public static void main(String[] args) {
 
 
         List<Product> products = new ArrayList<>();
+        List<Category> categoryRequest = new ArrayList<>();
+        File fileHistory = new File("data.bin");
 
 
         try (BufferedReader reader = new BufferedReader(new FileReader("categories.tsv"))) {
@@ -56,6 +59,7 @@ public class Main {
                         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
                 ) {
 
+
                     String infoBuy = in.readLine();
                     JSONParser parser = new JSONParser();
 
@@ -75,9 +79,28 @@ public class Main {
                     categoriesProduct.get(category).addSum(sum);
 
                     CalculationCategory calculationCategory = new CalculationCategory();
-                    List<Category> categoryRequest = new ArrayList<>();
+
 
                     categoryRequest.add(new Category(category, sum));
+
+                    if (!fileHistory.exists()) {
+                        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(fileHistory));) {
+
+                            objectOutputStream.writeObject(categoryRequest);
+
+                        } catch (IOException e) {
+                            System.out.println("Не могу сохранить запрос");
+                        }
+                    } else {
+
+                        try (ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(fileHistory));) {
+                            categoryRequest = (ArrayList<Category>) objectInputStream.readObject();
+
+                        } catch (ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+
 
                     calculationCategory.setMaxCategory(categoryRequest);
 
@@ -96,6 +119,4 @@ public class Main {
             e.printStackTrace();
         }
     }
-
-
 }
