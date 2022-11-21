@@ -50,7 +50,6 @@ public class Main {
             }
         }
 
-
         try (
                 ServerSocket serverSocket = new ServerSocket(8989);) { // стартуем сервер один(!) раз
             while (true) { // в цикле(!) принимаем подключения
@@ -60,8 +59,8 @@ public class Main {
                         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
                 ) {
 
-
-                    Gson gson = new Gson();
+                    GsonBuilder builder = new GsonBuilder();
+                    Gson gson = builder.create();
                     Request request = gson.fromJson(in.readLine(), Request.class);
 
                     String category = "другое";
@@ -97,12 +96,9 @@ public class Main {
                         }
                     }
 
-
                     calculationCategory.setMaxCategory(categoryRequest);
 
-                    GsonBuilder builder = new GsonBuilder();
                     Gson gson2 = builder.create();
-
 
                     out.println(gson2.toJson(calculationCategory));
 
