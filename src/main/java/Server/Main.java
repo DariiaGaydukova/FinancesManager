@@ -1,6 +1,7 @@
 package Server;
 
 
+import Client.Request;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.json.simple.JSONObject;
@@ -60,28 +61,23 @@ public class Main {
                 ) {
 
 
-                    String infoBuy = in.readLine();
-                    JSONParser parser = new JSONParser();
+                    Gson gson = new Gson();
+                    Request request = gson.fromJson(in.readLine(), Request.class);
 
-                    try {
-                        Object object = parser.parse(new FileReader(infoBuy));
-                        jsonObject = (JSONObject) object;
-                        System.out.println(jsonObject);
-                    } catch (IOException | ParseException e) {
+                    String category = "другое";
+                    for (Product product : products) {
+                        if (product.getTitle().equals(request.getTitle())) {
+                            category = product.getCategory();
+                            break;
+                        }
                     }
 
-
-                    String category = (String) jsonObject.get("title");
-                    String data = (String) jsonObject.get("data");
-                    String sumStr = (String) jsonObject.get("sum");
-                    Integer sum = Integer.parseInt(sumStr);
-
-                    categoriesProduct.get(category).addSum(sum);
+                    categoriesProduct.get(category).addSum(request.getSum());
 
                     CalculationCategory calculationCategory = new CalculationCategory();
 
 
-                    categoryRequest.add(new Category(category, sum));
+                    categoryRequest.add(new Category(category, request.getSum()));
 
                     if (!fileHistory.exists()) {
                         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(fileHistory));) {
@@ -105,10 +101,10 @@ public class Main {
                     calculationCategory.setMaxCategory(categoryRequest);
 
                     GsonBuilder builder = new GsonBuilder();
-                    Gson gson = builder.create();
+                    Gson gson2 = builder.create();
 
 
-                    out.println(gson.toJson(calculationCategory));
+                    out.println(gson2.toJson(calculationCategory));
 
 
                 }
